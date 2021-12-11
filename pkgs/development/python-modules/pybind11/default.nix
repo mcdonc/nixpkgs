@@ -71,6 +71,9 @@ in buildPythonPackage rec {
     "-DEIGEN3_INCLUDE_DIR=${lib.getDev eigen}/include/eigen3"
   ] ++ lib.optionals (python.isPy3k && !stdenv.cc.isClang) [
     "-DPYBIND11_CXX_STANDARD=-std=c++17"
+  ] ++ lib.optionals (stdenv.buildPlatform != stdenv.hostPlatform) [
+    "-DPYBIND11_NOPYTHON=ON"
+    "-DBUILD_TESTING=OFF"
   ];
 
   postBuild = ''
