@@ -9,7 +9,7 @@
 
 stdenv.mkDerivation rec {
   pname = "obs-backgroundremoval";
-  version = "0.5.16";
+  version = "1.0.1";
 
   src = fetchFromGitHub {
     owner = "royshil";
