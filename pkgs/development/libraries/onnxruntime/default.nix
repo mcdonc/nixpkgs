@@ -130,6 +130,7 @@ cudaPackages_11_8.backendStdenv.mkDerivation rec {
     pkg-config
     python3Packages.python
     protobuf3_21
+    gtest'
   ] ++ lib.optionals pythonSupport (with python3Packages; [
     setuptools
     wheel
@@ -158,7 +159,6 @@ cudaPackages_11_8.backendStdenv.mkDerivation rec {
   ];
 
   nativeCheckInputs = lib.optionals pythonSupport (with python3Packages; [
-    gtest'
     pytest
     sympy
     onnx
