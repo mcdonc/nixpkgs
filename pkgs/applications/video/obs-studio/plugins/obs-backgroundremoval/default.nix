@@ -4,13 +4,13 @@ addOpenGLRunpath, onnxruntime }:
 
 stdenv.mkDerivation rec {
   pname = "obs-backgroundremoval";
-  version = "1.1.3";
+  version = "1.1.5";
 
   src = fetchFromGitHub {
     owner = "royshil";
     repo = "obs-backgroundremoval";
     rev = "v${version}";
-    hash = "sha256-bBx0CnbmAQ8WKG017sab1d8Js6+MfiQj1y+FLgEaaLU=";
+    hash = "";
     fetchSubmodules = true;
   };
 

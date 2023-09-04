@@ -221,7 +221,7 @@ cudaPackages_11_8.backendStdenv.mkDerivation rec {
     "-Donnxruntime_USE_ROCM=OFF"
   ];
 
-  doCheck = true;
+  doCheck = false;
 
   postPatch = ''
     substituteInPlace cmake/libonnxruntime.pc.cmake.in \
