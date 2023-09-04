@@ -208,7 +208,7 @@ cudaPackages_11_8.backendStdenv.mkDerivation rec {
     "-DTENSORRT_INCLUDE_DIR=${cuda_joined}/include"
     "-DFETCHCONTENT_SOURCE_DIR_GSL=${microsoft-gsl.src}"
 #    "-DFETCHCONTENT_SOURCE_DIR_CUTLASS=${cutlass}"
-    "-DFETCHCONTENT_SOURCE_DIR_PYTORCH_CPUINFO=${pytorch-cpuinfo}"
+#    "-DFETCHCONTENT_SOURCE_DIR_PYTORCH_CPUINFO=${pytorch-cpuinfo}"
     # https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
 #    "-DCMAKE_CUDA_ARCHITECTURES=50"
 #    "-DORT_DISABLE_TRT_FLASH_ATTENTION=ON"
