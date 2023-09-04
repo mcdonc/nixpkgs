@@ -1,12 +1,15 @@
 { stdenv
 , lib
+, addOpenGLRunpath
 , fetchFromGitHub
 , fetchFromGitLab
 , fetchpatch
 , fetchurl
+, symlinkJoin
 , Foundation
 , abseil-cpp
 , cmake
+, cudaPackages_11_8
 , libpng
 , nlohmann_json
 , nsync
@@ -19,8 +22,7 @@
 , gtest
 , protobuf3_21
 , pythonSupport ? true
-}:
-
+, tensorrtSupport ? true }:
 
 let
   howard-hinnant-date = fetchFromGitHub {
@@ -75,12 +77,47 @@ let
       hash = "sha256-LVLEn+e7c8013pwiLzJiiIObyrlbBHYaioO/SWbItPQ=";
     };
     });
+
+  cuda_joined = symlinkJoin {
+    name = "cuda-joined-for-onnxruntime";
+    paths = [ cudaPackages_11_8.cudatoolkit cudaPackages_11_8.cudnn ]
+      ++ lib.optionals tensorrtSupport [
+        cudaPackages_11_8.tensorrt
+        cudaPackages_11_8.tensorrt.dev
+      ];
+  };
+
+  onnx-tensorrt = fetchFromGitHub {
+    owner = "onnx";
+    repo = "onnx-tensorrt";
+    rev = "ba6a4fb34fdeaa3613bf981610c657e7b663a699";
+    sha256 = "sha256-BcvkX0hX3AmogTFwILs86/MuITkknfuCAaaOuBKRjv8=";
+    fetchSubmodules = true;
+  };
+
+  cutlass = fetchFromGitHub {
+    owner = "NVIDIA";
+    repo = "cutlass";
+    rev = "v3.0.0";
+    sha256 = "sha256-YPD5Sy6SvByjIcGtgeGH80TEKg2BtqJWSg46RvnJChY=";
+  };
+
+  pytorch-cpuinfo = fetchFromGitHub {
+    owner = "pytorch";
+    repo = "cpuinfo";
+    rev = "5916273f79a21551890fd3d56fc5375a78d1598d";
+    sha256 = "sha256-nXBnloVTuB+AVX59VDU/Wc+Dsx94o92YQuHp3jowx2A=";
+  };
+  
 in
-stdenv.mkDerivation rec {
+cudaPackages_11_8.backendStdenv.mkDerivation rec {
   pname = "onnxruntime";
   version = "1.15.1";
 
+  __noChroot = true;
+  
   src = fetchFromGitHub {
+    url = "https://github.com/microsoft/onnxruntime.git";
     owner = "microsoft";
     repo = "onnxruntime";
     rev = "v${version}";
@@ -98,7 +135,9 @@ stdenv.mkDerivation rec {
     wheel
     pip
     pythonOutputDistHook
-  ]);
+  ]) ++ lib.optionals tensorrtSupport [
+    cudaPackages_11_8.autoAddOpenGLRunpathHook
+  ];
 
   buildInputs = [
     libpng
@@ -114,6 +153,8 @@ stdenv.mkDerivation rec {
   ] ++ lib.optionals stdenv.isDarwin [
     Foundation
     iconv
+  ] ++ lib.optionals tensorrtSupport [
+    cuda_joined
   ];
 
   nativeCheckInputs = lib.optionals pythonSupport (with python3Packages; [
@@ -132,6 +173,7 @@ stdenv.mkDerivation rec {
   cmakeDir = "../cmake";
 
   cmakeFlags = [
+    "--compile-no-warning-as-error"
     "-DABSL_ENABLE_INSTALL=ON"
     "-DCMAKE_BUILD_TYPE=RELEASE"
     "-DFETCHCONTENT_FULLY_DISCONNECTED=ON"
@@ -153,6 +195,26 @@ stdenv.mkDerivation rec {
     "-Donnxruntime_USE_FULL_PROTOBUF=OFF"
   ] ++ lib.optionals pythonSupport [
     "-Donnxruntime_ENABLE_PYTHON=ON"
+  ] ++ lib.optionals tensorrtSupport [
+    "-Donnxruntime_USE_CUDA=ON"
+    "-DCUDA_CUDA_LIBRARY=${cuda_joined}/lib/stubs"
+    "-Donnxruntime_CUDA_HOME=${cuda_joined}"
+    "-Donnxruntime_CUDNN_HOME=${cuda_joined}/lib"
+    "-Donnxruntime_USE_TENSORRT_BUILTIN_PARSER=ON"
+    "-DFETCHCONTENT_SOURCE_DIR_ONNX_TENSORRT=${onnx-tensorrt}"
+    "-Donnxruntime_USE_TENSORRT=ON"
+    "-Donnxruntime_TENSORRT_HOME=${cuda_joined}"
+    "-DTENSORRT_HOME=${cuda_joined}"
+    "-DTENSORRT_INCLUDE_DIR=${cuda_joined}/include"
+    "-DFETCHCONTENT_SOURCE_DIR_GSL=${microsoft-gsl.src}"
+#    "-DFETCHCONTENT_SOURCE_DIR_CUTLASS=${cutlass}"
+    "-DFETCHCONTENT_SOURCE_DIR_PYTORCH_CPUINFO=${pytorch-cpuinfo}"
+    # https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
+    "-DCMAKE_CUDA_ARCHITECTURES=50"
+#    "-DORT_DISABLE_TRT_FLASH_ATTENTION=ON"
+#    "-Donnxruntime_USE_ROCM=OFF"
+#    "-Donnxruntime_ENABLE_ROCM_PROFILING=OFF"
+    "-Donnxruntime_USE_FLASH_ATTENTION=OFF"
   ];
 
   doCheck = true;
@@ -165,8 +227,22 @@ stdenv.mkDerivation rec {
     rm -v onnxruntime/test/optimizer/nhwc_transformer_test.cc
   '';
 
+  # see onnxruntime's python tools/ci_build/build.py
+  preBuild = lib.optionalString tensorrtSupport ''
+    export ORT_TENSORRT_MAX_WORKSPACE_SIZE=1073741824
+    export ORT_TENSORRT_MAX_PARTITION_ITERATIONS=1000
+    export ORT_TENSORRT_MIN_SUBGRAPH_SIZE=1
+    export ORT_TENSORRT_FP16_ENABLE=0
+    export ORT_DISABLE_TRT_FLASH_ATTENTION=1
+  '';
+  
   postBuild = lib.optionalString pythonSupport ''
     python ../setup.py bdist_wheel
+  '';
+
+  preCheck = lib.optionalString tensorrtSupport ''
+    export LD_LIBRARY_PATH=${addOpenGLRunpath.driverLink}/lib
+    export ORT_DISABLE_TRT_FLASH_ATTENTION=1
   '';
 
   postInstall = ''
