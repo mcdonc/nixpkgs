@@ -10,7 +10,7 @@ stdenv.mkDerivation rec {
     owner = "royshil";
     repo = "obs-backgroundremoval";
     rev = "v${version}";
-    hash = "";
+    hash = "sha256-CkHpvrGfYQjJqCLWn1fnE2RWF4rxsQOE+Isr+oCiDyQ=";
     fetchSubmodules = true;
   };
 
