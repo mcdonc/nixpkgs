@@ -1,42 +1,57 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, obs-studio
-, onnxruntime
-, opencv
-}:
+{ lib, stdenv, fetchFromGitHub, cmake, obs-studio, opencv, curl, ninja ,
+libsForQt5, qt6, callPackage, cudaPackages_11_8, autoPatchelfHook,
+addOpenGLRunpath, onnxruntime }:
 
 stdenv.mkDerivation rec {
   pname = "obs-backgroundremoval";
-  version = "0.5.16";
+  version = "1.1.3";
 
   src = fetchFromGitHub {
     owner = "royshil";
     repo = "obs-backgroundremoval";
     rev = "v${version}";
-    hash = "sha256-E+pm/Ma6dZTYlX3DpB49ynTETsRS2TBqgHSCijl/Txc=";
+    hash = "sha256-bBx0CnbmAQ8WKG017sab1d8Js6+MfiQj1y+FLgEaaLU=";
+    fetchSubmodules = true;
   };
 
-  nativeBuildInputs = [ cmake ];
-  buildInputs = [ obs-studio onnxruntime opencv ];
+  nativeBuildInputs =
+    [ cmake cudaPackages_11_8.autoAddOpenGLRunpathHook autoPatchelfHook
+      ninja ];
+
+  buildInputs =
+    [ obs-studio onnxruntime opencv qt6.qtbase curl ];
 
   dontWrapQtApps = true;
 
-  cmakeFlags = [
-    "-DUSE_SYSTEM_ONNXRUNTIME=ON"
-    "-DUSE_SYSTEM_OPENCV=ON"
-  ];
-
-  postInstall = ''
-    mkdir $out/lib $out/share
-    mv $out/obs-plugins/64bit $out/lib/obs-plugins
-    rm -rf $out/obs-plugins
-    mv $out/data $out/share/obs
+  env.NIX_CFLAGS_COMPILE = ''
+    -I${onnxruntime.dev}/include/onnxruntime/core/providers/tensorrt
+    -L${onnxruntime}/lib
+    -Wl,--no-undefined
   '';
 
+  # pulled from scripts/PKGBUILD
+  cmakeFlags = [
+    "-DENABLE_QT=ON"
+    "-DENABLE_FRONTEND_API=ON"
+    "-DCMAKE_MODULE_PATH=${src}/cmake"
+    "-DobsIncludePath=${obs-studio}/include/obs"
+    "-DVERSION={$version}"
+    "-DUSE_SYSTEM_ONNXRUNTIME=ON"
+    "-DUSE_SYSTEM_OPENCV=ON"
+    "-DUSE_SYSTEM_CURL=ON"
+    "-DOnnxruntime_INCLUDE_DIR=${onnxruntime.dev}/include"
+    "-DOnnxruntime_LIBRARIES=${onnxruntime}/lib/libonnxruntime.so"
+  ];
+
+  passthru.obsWrapperArguments = [
+    "--prefix LD_LIBRARY_PATH : ${onnxruntime}/lib"
+    "--prefix LD_LIBRARY_PATH : ${addOpenGLRunpath.driverLink}/lib"
+    "--prefix LD_LIBRARY_PATH : ${onnxruntime}/lib"
+  ];
+
   meta = with lib; {
-    description = "OBS plugin to replace the background in portrait images and video";
+    description =
+      "OBS plugin to replace the background in portrait images and video";
     homepage = "https://github.com/royshil/obs-backgroundremoval";
     maintainers = with maintainers; [ zahrun ];
     license = licenses.mit;
