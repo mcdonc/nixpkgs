@@ -210,11 +210,11 @@ cudaPackages_11_8.backendStdenv.mkDerivation rec {
 #    "-DFETCHCONTENT_SOURCE_DIR_CUTLASS=${cutlass}"
     "-DFETCHCONTENT_SOURCE_DIR_PYTORCH_CPUINFO=${pytorch-cpuinfo}"
     # https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/
-    "-DCMAKE_CUDA_ARCHITECTURES=50"
+#    "-DCMAKE_CUDA_ARCHITECTURES=50"
 #    "-DORT_DISABLE_TRT_FLASH_ATTENTION=ON"
 #    "-Donnxruntime_USE_ROCM=OFF"
 #    "-Donnxruntime_ENABLE_ROCM_PROFILING=OFF"
-    "-Donnxruntime_USE_FLASH_ATTENTION=OFF"
+#    "-Donnxruntime_USE_FLASH_ATTENTION=OFF"
   ];
 
   doCheck = true;
