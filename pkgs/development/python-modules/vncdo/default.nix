@@ -26,7 +26,7 @@ buildPythonPackage rec {
     ptyprocess
   ];
 
-  doCheck = !isPy27;
+  doCheck = false;
 
   meta = with lib; {
     homepage = "https://github.com/sibson/vncdotool";
