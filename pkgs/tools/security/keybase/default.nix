@@ -15,7 +15,7 @@ buildGoModule rec {
   src = fetchFromGitHub {
     owner = "keybase";
     repo = "client";
-    rev = "v${version}";
+    rev = "ae7e4a1c153403106352bd2fcfa7f16d54f35974"; # unsymbolic v6.2.4
     hash = "sha256-z7vpCUK+NU7xU9sNBlQnSy9sjXD7/m8jSRKfJAgyyN8=";
   };
   vendorHash = "sha256-tXEEVEfjoKub2A4m7F3hDc5ABJ+R+axwX1+1j7e3BAM=";
