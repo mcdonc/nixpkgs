@@ -35,8 +35,10 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
-  # this test assumes a certain encoding of the underlying filesystem
-  disabledTests = [ "test_file_surrogates"] ;
+  disabledTests = [
+    # test fails with filename normalization on zfs
+    "test_file_surrogates"
+  ];
 
   passthru.tests = {
     inherit black flask magic-wormhole mitmproxy typer;
