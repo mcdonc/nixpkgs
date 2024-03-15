@@ -22,7 +22,7 @@ stdenv.mkDerivation rec {
     owner = "oneapi-src";
     repo = "level-zero";
     rev = "refs/tags/v${version}";
-    hash = "";
+    hash = "sha256-LQjb/vtfgZfaWS2IgzVBRYoDlA5dB2hTY2yNtXlNA84=";
   };
 
   nativeBuildInputs = [ cmake addOpenGLRunpath ];
