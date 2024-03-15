@@ -38,6 +38,7 @@ stdenv.mkDerivation rec {
     "-DOCL_ICD_VENDORDIR=${placeholder "out"}/etc/OpenCL/vendors"
     # The install script assumes this path is relative to CMAKE_INSTALL_PREFIX
     "-DCMAKE_INSTALL_LIBDIR=lib"
+    "-Wno-error=stringop-overflow"
   ];
 
   outputs = [ "out" "drivers" ];
