@@ -32,13 +32,17 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ intel-gmmlib intel-graphics-compiler libva level-zero ];
 
+  env.NIX_CFLAGS_COMPILE = toString (lib.optionals stdenv.cc.isGNU [
+    # Needed with GCC 12 but breaks on darwin (with clang)
+    "-Wno-error=stringop-overflow"
+  ]);
+
   cmakeFlags = [
     "-DSKIP_UNIT_TESTS=1"
     "-DIGC_DIR=${intel-graphics-compiler}"
     "-DOCL_ICD_VENDORDIR=${placeholder "out"}/etc/OpenCL/vendors"
     # The install script assumes this path is relative to CMAKE_INSTALL_PREFIX
     "-DCMAKE_INSTALL_LIBDIR=lib"
-    "-Wno-error=stringop-overflow"
   ];
 
   outputs = [ "out" "drivers" ];
