@@ -26,6 +26,10 @@ stdenv.mkDerivation rec {
     hash = "sha256-LQjb/vtfgZfaWS2IgzVBRYoDlA5dB2hTY2yNtXlNA84=";
   };
 
+  cmakeFlags = [
+    "-DFETCHCONTENT_SOURCE_DIR_SPDLOG:PATH=${spdlog.src}"
+  ];
+
   nativeBuildInputs = [ cmake addOpenGLRunpath spdlog ];
 
   postFixup = ''
@@ -40,4 +44,3 @@ stdenv.mkDerivation rec {
     maintainers = [ maintainers.ziguana ];
   };
 }
-
