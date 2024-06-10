@@ -289,6 +289,7 @@ stdenv.mkDerivation (finalAttrs: (shared // {
   inherit (shared) src;
   patches = [
     # Not accepted upstream, see https://github.com/gnuradio/gnuradio/pull/5227
+    ./blocktool-fsized-deallocation.patch
     ./modtool-newmod-permissions.patch
   ];
   passthru = shared.passthru // {
