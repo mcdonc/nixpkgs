@@ -29,7 +29,7 @@ buildPythonApplication rec {
     owner = "ProtonVPN";
     repo = "proton-vpn-gtk-app";
     tag = "v${version}";
-    hash = "";
+    hash = "sha256-pDTzqTiGAisVEHwez526z9C9GzNkMWl6Cui8E6siIXo=";
   };
 
   nativeBuildInputs = [
