@@ -15,7 +15,7 @@
 
 buildPythonPackage rec {
   pname = "proton-core";
-  version = "0.4.0";
+  version = "0.7.0";
   pyproject = true;
 
   src = fetchFromGitHub {
@@ -63,9 +63,9 @@ buildPythonPackage rec {
     # Failed assertions
     "test_bad_pinning_fingerprint_changed"
     "test_bad_pinning_url_changed"
-    "test_compute_v"
-    "test_generate_v"
-    "test_srp"
+    #"test_compute_v"
+    #"test_generate_v"
+    #"test_srp"
   ];
 
   meta = {
