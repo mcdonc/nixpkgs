@@ -9,6 +9,7 @@
   pynacl,
   aiohttp,
   pyopenssl,
+  fido2,
   pytest-asyncio,
   requests,
   sentry-sdk,
@@ -42,6 +43,7 @@ buildPythonPackage rec {
     proton-core
     sentry-sdk
     pyxdg
+    fido2
   ];
 
   pythonImportsCheck = [
