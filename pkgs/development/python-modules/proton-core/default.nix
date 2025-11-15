@@ -63,9 +63,6 @@ buildPythonPackage rec {
     # Failed assertions
     "test_bad_pinning_fingerprint_changed"
     "test_bad_pinning_url_changed"
-    #"test_compute_v"
-    #"test_generate_v"
-    #"test_srp"
   ];
 
   meta = {

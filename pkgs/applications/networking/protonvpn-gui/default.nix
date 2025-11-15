@@ -22,7 +22,7 @@
 
 buildPythonApplication rec {
   pname = "protonvpn-gui";
-  version = "4.9.7";
+  version = "4.12.0";
   pyproject = true;
 
   src = fetchFromGitHub {
