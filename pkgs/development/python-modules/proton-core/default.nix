@@ -60,6 +60,7 @@ buildPythonPackage rec {
     "test_ping"
     "test_successful"
     "test_without_pinning"
+    "test_raw_ping"
     # Failed assertions
     "test_bad_pinning_fingerprint_changed"
     "test_bad_pinning_url_changed"
