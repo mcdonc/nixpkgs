@@ -27,7 +27,7 @@ buildPythonPackage rec {
     owner = "ProtonVPN";
     repo = "python-proton-vpn-api-core";
     rev = "v${version}";
-    hash = "";
+    hash = "sha256-DJXKfUkV0ojL9UjM6cyFAOkdYhzZZU9L3z1ARjIQnUI=";
   };
 
   build-system = [
